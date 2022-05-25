@@ -91,9 +91,9 @@ export class MyStack extends Stack {
         memoryLimitMiB: 512,
         cpu: 256,
         taskRole: taskrole,
-        runtimePlatform: {
-          cpuArchitecture: ecs.CpuArchitecture.ARM64
-        }
+        // runtimePlatform: {
+        //   cpuArchitecture: ecs.CpuArchitecture.ARM64
+        // }
       }
     );
 
@@ -147,7 +147,7 @@ export class MyStack extends Stack {
       cluster,
       taskDefinition: paasServiceTaskDefinition,
       assignPublicIp: false,
-      desiredCount: 0,
+      desiredCount: 2,
       securityGroups: [paasServiceSG],
       cloudMapOptions: {
         name: "paasService",
