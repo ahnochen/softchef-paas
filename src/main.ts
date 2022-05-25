@@ -91,9 +91,9 @@ export class MyStack extends Stack {
         memoryLimitMiB: 512,
         cpu: 256,
         taskRole: taskrole,
-        // runtimePlatform: {
-        //   cpuArchitecture: ecs.CpuArchitecture.ARM64
-        // }
+        runtimePlatform: {
+          cpuArchitecture: ecs.CpuArchitecture.ARM64
+        }
       }
     );
 
@@ -112,8 +112,8 @@ export class MyStack extends Stack {
     // Amazon ECR Repositories
     const paasservicerepo = ecr.Repository.fromRepositoryName(
       this,
-      "paas-test",
-      "paas-test"
+      "ex-service",
+      "ex-service"
     );;
 
     // Task Containers
@@ -147,7 +147,7 @@ export class MyStack extends Stack {
       cluster,
       taskDefinition: paasServiceTaskDefinition,
       assignPublicIp: false,
-      desiredCount: 2,
+      desiredCount: 1,
       securityGroups: [paasServiceSG],
       cloudMapOptions: {
         name: "paasService",
