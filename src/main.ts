@@ -24,7 +24,7 @@ export class MyStack extends Stack {
     super(scope, id, props);
 
     // Create a VPC with 9x subnets divided over 3 AZ's
-    const vpc = new ec2.Vpc(this, "testVpc", {
+    const vpc = new ec2.Vpc(this, "paasVpc", {
       cidr: "172.31.0.0/16",
       natGateways: 1,
       maxAzs: 2,
@@ -41,8 +41,8 @@ export class MyStack extends Stack {
     });
 
     // Create an ECS cluster
-    const cluster = new ecs.Cluster(this, "test-cluster", {
-      clusterName: "testCluster",
+    const cluster = new ecs.Cluster(this, "paas-cluster", {
+      clusterName: "paasCluster",
       containerInsights: true,
       vpc: vpc,
     });
@@ -84,7 +84,7 @@ export class MyStack extends Stack {
     );
 
     // Task Role
-    const taskrole = new iam.Role(this, "ecstestTaskExecutionRole", {
+    const taskrole = new iam.Role(this, "ecspaasTaskExecutionRole", {
       assumedBy: new iam.ServicePrincipal("ecs-tasks.amazonaws.com"),
     });
     taskrole.addManagedPolicy(
@@ -94,9 +94,9 @@ export class MyStack extends Stack {
     );
 
     // Task Definitions
-    const testServiceTaskDefinition = new ecs.FargateTaskDefinition(
+    const paasServiceTaskDefinition = new ecs.FargateTaskDefinition(
       this,
-      "testServiceTaskDef",
+      "paasServiceTaskDef",
       {
         memoryLimitMiB: 512,
         cpu: 256,
@@ -108,59 +108,59 @@ export class MyStack extends Stack {
     );
 
     // Log Groups
-    const testServiceLogGroup = new logs.LogGroup(this, "testServiceLogGroup", {
-      logGroupName: "/ecs/testService",
+    const paasServiceLogGroup = new logs.LogGroup(this, "paasServiceLogGroup", {
+      logGroupName: "/ecs/paasService",
       removalPolicy: RemovalPolicy.DESTROY,
     });
 
     // Log Driver
-    const testServiceLogDriver = new ecs.AwsLogDriver({
-      logGroup: testServiceLogGroup,
-      streamPrefix: "testService",
+    const paasServiceLogDriver = new ecs.AwsLogDriver({
+      logGroup: paasServiceLogGroup,
+      streamPrefix: "paasService",
     });
 
     // Amazon ECR Repositories
-    const testservicerepo = ecr.Repository.fromRepositoryName(
+    const paasservicerepo = ecr.Repository.fromRepositoryName(
       this,
-      "author_test-service",
-      "author_test-service"
+      "author_paas-service",
+      "author_paas-service"
     );;
 
     // Task Containers
-    const testServiceContainer = testServiceTaskDefinition.addContainer(
-      "testServiceContainer",
+    const paasServiceContainer = paasServiceTaskDefinition.addContainer(
+      "paasServiceContainer",
       {
-        image: ecs.ContainerImage.fromEcrRepository(testservicerepo),
-        logging: testServiceLogDriver,
+        image: ecs.ContainerImage.fromEcrRepository(paasservicerepo),
+        logging: paasServiceLogDriver,
       }
     );
 
-    testServiceContainer.addPortMappings({
+    paasServiceContainer.addPortMappings({
       containerPort: 80,
     });
 
     //Security Groups
-    const testServiceSG = new ec2.SecurityGroup(
+    const paasServiceSG = new ec2.SecurityGroup(
       this,
-      "testServiceSecurityGroup",
+      "paasServiceSecurityGroup",
       {
         allowAllOutbound: true,
-        securityGroupName: "testServiceSecurityGroup",
+        securityGroupName: "paasServiceSecurityGroup",
         vpc,
       }
     );
 
-    testServiceSG.connections.allowFromAnyIpv4(ec2.Port.tcp(80));
+    paasServiceSG.connections.allowFromAnyIpv4(ec2.Port.tcp(80));
 
 
     const service = new ecs.FargateService(this, 'Service', {
       cluster,
-      taskDefinition: testServiceTaskDefinition,
+      taskDefinition: paasServiceTaskDefinition,
       assignPublicIp: false,
       desiredCount: 0,
-      securityGroups: [testServiceSG],
+      securityGroups: [paasServiceSG],
       cloudMapOptions: {
-        name: "testService",
+        name: "paasService",
         cloudMapNamespace: dnsNamespace,
       },
     });
@@ -169,7 +169,7 @@ export class MyStack extends Stack {
     const listener = lb.addListener('Listener', { port: 80 });
     service.registerLoadBalancerTargets(
       {
-        containerName: testServiceContainer.containerName,
+        containerName: paasServiceContainer.containerName,
         containerPort: 80,
         newTargetGroupId: 'ECS',
         listener: ecs.ListenerConfig.applicationListener(listener, {
