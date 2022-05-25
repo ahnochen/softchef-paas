@@ -25,19 +25,9 @@ export class MyStack extends Stack {
 
     // Create a VPC with 9x subnets divided over 3 AZ's
     const vpc = new ec2.Vpc(this, "paasVpc", {
-      cidr: "172.31.0.0/16",
+      cidr: "10.0.0.0/16",
       natGateways: 1,
-      maxAzs: 2,
-      subnetConfiguration: [
-        {
-          name: 'pbulic',
-          subnetType: ec2.SubnetType.PUBLIC,
-        },
-        {
-          name: 'private',
-          subnetType: ec2.SubnetType.PRIVATE_WITH_NAT,
-        }
-      ]
+      maxAzs: 2
     });
 
     // Create an ECS cluster
