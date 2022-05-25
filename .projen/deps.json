@@ -83,8 +83,16 @@
       "type": "build"
     },
     {
+      "name": "@softchef/cdk-restapi",
+      "type": "runtime"
+    },
+    {
       "name": "aws-cdk-lib",
       "version": "^2.1.0",
+      "type": "runtime"
+    },
+    {
+      "name": "cdk-ecr-deployment",
       "type": "runtime"
     },
     {
