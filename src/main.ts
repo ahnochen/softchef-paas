@@ -112,8 +112,8 @@ export class MyStack extends Stack {
     // Amazon ECR Repositories
     const paasservicerepo = ecr.Repository.fromRepositoryName(
       this,
-      "author_paas-service",
-      "author_paas-service"
+      "paas-test",
+      "paas-test"
     );;
 
     // Task Containers
